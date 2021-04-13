@@ -5,8 +5,10 @@
  */
 package Main;
 
-import java.io.File;
 import java.io.IOException;
+import java.util.Collections;
+import java.util.Comparator;
+import java.util.List;
 
 /**
  *
@@ -19,6 +21,20 @@ public class Main {
         
         e.getAllFilePaths();
         e.initAllDocument();
-        e.getTopTermFrequencies(100);
+        e.calculateTermFrequencies();
+        List<Document> docs = e.rank_docs_query("big cat afraid");
+        Collections.sort(docs, new Sortbyrank().reversed());
+        
+        for(Document doc : docs) {
+            System.out.println("File: " + doc.file.getName() + " Sim: " + doc.rank);
+        }
+    }
+}
+
+class Sortbyrank implements Comparator<Document>
+{
+    public int compare(Document a, Document b)
+    {
+        return Float.compare(a.rank, b.rank);
     }
 }

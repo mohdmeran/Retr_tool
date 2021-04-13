@@ -7,6 +7,8 @@ package Main;
 
 import java.io.BufferedReader;
 import java.io.ByteArrayInputStream;
+import java.io.File;
+import java.io.FileWriter;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.nio.charset.StandardCharsets;
@@ -14,6 +16,7 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.Comparator;
 import java.util.HashMap;
 import java.util.List;
@@ -71,76 +74,65 @@ public class Engine {
         return true;
     }
     
-    boolean getTopTermFrequencies(int max_top){
-        documents.forEach(document -> {
-            System.out.println(document.file.getName());
-            try {
-                String text = document.toText();
+    float getidf (String word) {
+        return countMap.get(word) != null ? countMap.get(word).getIDF(documents.size()) : 0;
+    }
+    
+    List<Document> rank_docs_query(String query){
+        try {
+            FileWriter queryWriter = new FileWriter("query.txt");
+            queryWriter.write(query);
+            queryWriter.close();
+        } catch (IOException ex) {
+            Logger.getLogger(Engine.class.getName()).log(Level.SEVERE, null, ex);
+        }
+        
+        File file = new File("query.txt");
+        Document queryObj = new Query(file);
+        queryObj.calculateTermFrequencies();
+        
+        float query_vector_length = queryObj.getVectorLength(this);
+        Map<String, Word> query_word_map = queryObj.countMap;
+        
+        for(Document doc : documents) {
+            Map<String, Word> doc_word_map = doc.countMap;
+
+            float total_wij_wiq = 0;
+            float document_query_vector = doc.getVectorLength(this) * query_vector_length;
+            
+            for(String query_word : query_word_map.keySet()){
                 
-                BufferedReader reader = new BufferedReader(new InputStreamReader(new ByteArrayInputStream(text.getBytes(StandardCharsets.UTF_8))));
-                String line;
-                while ((line = reader.readLine()) != null) {
-                    
-                    String[] words = line.split("[^A-ZÃƒâ€¦Ãƒâ€žÃƒâ€“a-zÃƒÂ¥ÃƒÂ¤ÃƒÂ¶]+");
-                    for (String word : words) {
-                        if ("".equals(word)) {
-                            continue;
-                        }
-                        
-                        Word wordObj = countMap.get(word);
-                        if (wordObj == null) {
-                            wordObj = new Word();
-                            wordObj.word = word;
-                            wordObj.count = 0;
-                            countMap.put(word, wordObj);
-                        }
-                        
-                        wordObj.count++;
-                    }
+                Word doc_word = doc_word_map.get(query_word);
+                float wij = doc_word != null ? doc_word.normalized_tf * this.getidf(doc_word.word) : 0;
+                float wiq = query_word_map.get(query_word).normalized_tf * this.getidf(query_word);
+                
+                total_wij_wiq += wij * wiq;
+            }
+            
+            doc.rank = total_wij_wiq == 0 ? 0 : total_wij_wiq / document_query_vector;
+        }
+        
+        return documents;
+    }
+    
+    Map<String, Word> calculateTermFrequencies(){
+        documents.forEach(document -> {
+            Map<String, Word> temp = document.calculateTermFrequencies();
+            for(Word wordObj : temp.values()) {
+                Word engine_level_wordObj = countMap.get(wordObj.word);
+                if(engine_level_wordObj != null) {
+                    engine_level_wordObj.count += wordObj.count;
+                    continue;
                 }
                 
-                reader.close();
-            } catch (IOException ex) {
-                Logger.getLogger(Engine.class.getName()).log(Level.SEVERE, null, ex);
+                Word tempWord = new Word();
+                tempWord.word = wordObj.word;
+                tempWord.count = 1;
+                
+                countMap.put(wordObj.word, tempWord);
             }
         });
         
-        SortedSet<Word> sortedWords = new TreeSet<Word>(countMap.values()).descendingSet();
- 
-        int count = 1;
-        for (Word word : sortedWords) {
-            // if(count > max_top) break;
-            System.out.println(word.word + ": " + word.count);
-            
-            count++;
-        }
-        
-        return true;
-    }
-    
-    
-    
-    public static class Word implements Comparable<Word> {
-        String word;
-        int count;
-
-        @Override
-        public int hashCode() { return word.hashCode(); }
-
-        @Override
-        public boolean equals(Object obj) { return word.equals(((Word)obj).word); }
-        
-        int getCount() {
-            return this.count;
-        }
-        
-        String getWord() {
-            return this.word;
-        }
-        
-        @Override
-        public int compareTo(Word b) { return Comparator.comparing(Word::getCount)
-              .thenComparing(Word::getWord)
-              .compare(this, b); }
+        return countMap;
     }
 }
