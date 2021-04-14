@@ -80,6 +80,13 @@ abstract class Document implements Comparable<Document>{
             total_weight_vector += weight_vector * weight_vector;
             
             word.normalized_tf = normalized_tf;
+            
+            if("d2.pdf".equals(file.getName())) {
+                System.out.println("word: " + word.word);
+                System.out.println("normalized_tf: " + normalized_tf);
+                System.out.println("idf: " + idf);
+                System.out.println("====================");
+            }
         }
 
         return (float) Math.sqrt(total_weight_vector);

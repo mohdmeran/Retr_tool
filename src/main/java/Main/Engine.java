@@ -98,7 +98,7 @@ public class Engine {
             Map<String, Word> doc_word_map = doc.countMap;
 
             float total_wij_wiq = 0;
-            float document_query_vector = doc.getVectorLength(this) * query_vector_length;
+            float document_query_vector = doc.getVectorLength(this) * query_vector_length;         
             
             for(String query_word : query_word_map.keySet()){
                 
@@ -127,7 +127,7 @@ public class Engine {
                 
                 Word tempWord = new Word();
                 tempWord.word = wordObj.word;
-                tempWord.count = 1;
+                tempWord.count = wordObj.count;
                 
                 countMap.put(wordObj.word, tempWord);
             }
