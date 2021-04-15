@@ -59,9 +59,9 @@ public class Engine {
         Document doc;
         
         switch(ext) {
-//            case "pptx":
-//                doc = new PPT(file);
-//                break;
+            case "pptx":
+                doc = new PPT(file);
+                break;
             case "html":
                 doc = new HTML(file);
                 break;
@@ -86,6 +86,7 @@ public class Engine {
         return countMap.get(word) != null ? countMap.get(word).getIDF(documents.size()) : 0;
     }
     
+    // To rank all the documents base on query
     List<Document> rank_docs_query(String query){
         try {
             FileWriter queryWriter = new FileWriter("query.txt");
@@ -99,6 +100,7 @@ public class Engine {
         Document queryObj = new Query(file);
         queryObj.calculateTermFrequencies();
         
+        // Vector space model based calculation
         float query_vector_length = queryObj.getVectorLength(this);
         Map<String, Word> query_word_map = queryObj.countMap;
         
@@ -120,6 +122,7 @@ public class Engine {
             doc.rank = total_wij_wiq == 0 ? 0 : total_wij_wiq / document_query_vector;
         }
         
+        // Binary based calculation model
         List<Document> result = binaryFilters(documents, (Query) queryObj);
         
         Collections.sort(result, new Sortbyrank().reversed());
@@ -127,6 +130,7 @@ public class Engine {
         return result;
     }
     
+    // Calculate Term Frequencies Engine level
     private Map<String, Word> calculateTermFrequencies(Document document){
         Map<String, Word> temp = document.calculateTermFrequencies();
         for(Word wordObj : temp.values()) {
@@ -146,6 +150,7 @@ public class Engine {
         return countMap;
     }
     
+    // Binary based calculation model function
     private List<Document> binaryFilters(List<Document> docs, Query q) {
         List<Document> temp = new ArrayList<>();
         

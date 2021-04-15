@@ -29,6 +29,7 @@ abstract class Document implements Comparable<Document>{
     
     abstract String toText();
     
+    // Calculate Term Frequencies Document level
     Map<String, Word> calculateTermFrequencies(){
         try {
             String text = toText();

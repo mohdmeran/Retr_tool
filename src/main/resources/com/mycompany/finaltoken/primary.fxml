@@ -39,7 +39,6 @@
                      </HBox.margin>
                   </TextField>
                   <Button fx:id="b_searchButton" onAction="#onClickSearchButton" prefHeight="25.0" prefWidth="72.0" text="Search" />
-                  <Button fx:id="b_reset" onAction="#onClickSearchButton" text="Reset" visible="false" />
                </children>
                <opaqueInsets>
                   <Insets right="12.0" />
@@ -80,6 +79,7 @@
             </VBox>
          </children>
       </HBox>
+      <Button fx:id="b_reset" onAction="#onClickReset" text="Reset" visible="false" />
    </children>
    <padding>
       <Insets bottom="20.0" left="20.0" right="20.0" top="20.0" />

@@ -1,16 +1,13 @@
 package com.mycompany.finaltoken;
 
 import java.io.File;
-import java.net.URL;
 import java.util.List;
-import java.util.ResourceBundle;
+import javafx.application.HostServices;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.scene.control.Button;
 import javafx.scene.control.Hyperlink;
 import javafx.scene.control.ListView;
-import javafx.scene.control.TableColumn;
-import javafx.scene.control.TableView;
 import javafx.scene.control.TextField;
 import javafx.scene.layout.VBox;
 import javafx.stage.DirectoryChooser;
@@ -27,6 +24,7 @@ public class PrimaryController {
     @FXML private Button b_reset;
     @FXML private TextField query_input_field;    
     @FXML private ListView<Hyperlink> lv_rank;
+    private HostServices hostServices;
 
     Engine engine = new Engine();
     
@@ -38,18 +36,25 @@ public class PrimaryController {
     
     @FXML
     void onClickSearchButton(ActionEvent event) {
-        List<Document> result = engine.rank_docs_query(query_input_field.getText());       
+        String query = query_input_field.getText();
         
+        if(query == null || "".equals(query)) return;
+        
+        lv_rank.getItems().clear();
+        
+        List<Document> result = engine.rank_docs_query(query);       
+        
+        int count = 0;
         for(Document doc : result) {            
+            
             String path = doc.file.toString();
             
-            final File file = new File(path);            
-            
-            Hyperlink hp = new Hyperlink(path);
-//            Desktop
-////            hp.setOnAction(e -> {
-////                if(!Desktop.isDesktopSupported)
-////            });
+            final File file = new File(path);
+
+            Hyperlink hp = new Hyperlink("Rank " + (++count) + ": " + path);
+            hp.setOnAction(e -> {
+               hostServices.showDocument(file.getAbsolutePath());
+            });
             lv_rank.getItems().add(hp);
         }
     }
@@ -66,6 +71,8 @@ public class PrimaryController {
         if(engine.addByFile(path)){
             lv_files.getItems().add(selectedFile.getPath());
         }
+        
+        checkResetFolder();
     }
 
     @FXML
@@ -80,6 +87,28 @@ public class PrimaryController {
         for(File file : engine.addByDirectory(path)) {
             lv_files.getItems().add(file.toString()); 
         }
+        
+        checkResetFolder();
     }
-
+    
+    @FXML
+    void onClickReset(ActionEvent event) {
+        engine = new Engine();
+        if(engine.documents.size() < 1) {
+            lv_files.getItems().clear();
+        }
+        lv_rank.getItems().clear();
+        
+        b_reset.setVisible(false);
+    }
+    
+    void checkResetFolder() {
+        if(lv_files.getItems().size() > 0) {
+            b_reset.setVisible(true);
+        }
+    }
+    
+    void setHostServices(HostServices hostServices) {
+        this.hostServices = hostServices;
+    }
 }
