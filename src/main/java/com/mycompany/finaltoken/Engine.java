@@ -17,6 +17,8 @@ import java.util.Comparator;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.SortedSet;
+import java.util.TreeSet;
 import java.util.stream.Stream;
 import org.apache.commons.io.FilenameUtils;
 
@@ -53,7 +55,7 @@ public class Engine {
         return addFile(new File(file_path)); 
     }
     
-    private Boolean addFile(File file) {
+    private Boolean addFile(File file) {    
         String ext = FilenameUtils.getExtension(file.getPath());
         Boolean res = true;
         Document doc;
@@ -88,6 +90,8 @@ public class Engine {
     
     // To rank all the documents base on query
     List<Document> rank_docs_query(String query){
+        query = query.toLowerCase();
+        
         try {
             FileWriter queryWriter = new FileWriter("query.txt");
             queryWriter.write(query);
@@ -150,6 +154,21 @@ public class Engine {
         return countMap;
     }
     
+    //Get the top highest term frequency of all documents
+    List<Word> getTopFrequency(int max_top) {        
+        List<Word> res = new ArrayList<>();
+        SortedSet<Word> sortedWords = new TreeSet<>(countMap.values()).descendingSet();
+        
+        int count = 0;
+        for(Word word : sortedWords) {
+            if(count++ >= max_top) break;
+            
+            res.add(word);
+        }
+        
+        return res;
+    }
+    
     // Binary based calculation model function
     private List<Document> binaryFilters(List<Document> docs, Query q) {
         List<Document> temp = new ArrayList<>();
@@ -170,6 +189,7 @@ public class Engine {
     }
     
     class Sortbyrank implements Comparator<Document> {
+        @Override
         public int compare(Document a, Document b)
         {
             return Float.compare(a.rank, b.rank);

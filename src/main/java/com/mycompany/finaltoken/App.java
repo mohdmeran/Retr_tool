@@ -24,13 +24,6 @@ public class App extends Application {
         scene = new Scene(root, 1080, 720);
         stage.setScene(scene);
         stage.show();
-        
-//        FXMLLoader loader = new FXMLLoader(getClass().getResource("main.fxml"));
-//        Parent root = loader.load();
-//        MainController controller = loader.getController();
-//        controller.setHostServices(getHostServices());
-//        primaryStage.setScene(new Scene(root));
-//        primaryStage.show();
     }
 
     void setRoot(String fxml) throws IOException {

@@ -1,37 +1,41 @@
 package com.mycompany.finaltoken;
 
-
-
 import java.io.BufferedReader;
 import java.io.ByteArrayInputStream;
 import java.io.File;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.nio.charset.StandardCharsets;
+import java.nio.file.Files;
+import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.SortedSet;
 import java.util.TreeSet;
-
 /**
  *
  * @author black
  */
 abstract class Document implements Comparable<Document>{
     File file;
-    Map<String, Word> countMap = new HashMap<String, Word>();
+    Map<String, Word> countMap = new HashMap<>();
     float rank;
     
     public Document(File file) {
         this.file = file;
     }
     
+    // Abstract function of each different type of document to fetch text
     abstract String toText();
     
     // Calculate Term Frequencies Document level
     Map<String, Word> calculateTermFrequencies(){
         try {
+            File f_stopwords = new File("english_stopwords.txt");
+            List<String> stop_words = Files.readAllLines(f_stopwords.toPath(), StandardCharsets.UTF_8);
+            
             String text = toText();
 
             BufferedReader reader = new BufferedReader(new InputStreamReader(new ByteArrayInputStream(text.getBytes(StandardCharsets.UTF_8))));
@@ -40,10 +44,15 @@ abstract class Document implements Comparable<Document>{
 
                 String[] words = line.split("[^A-ZÃƒâ€¦Ãƒâ€žÃƒâ€“a-zÃƒÂ¥ÃƒÂ¤ÃƒÂ¶]+");
                 for (String word : words) {
-                    if ("".equals(word)) {
+                    
+                    word = word.toLowerCase();
+                    
+                    // skip if empty string or stop word
+                    if ("".equals(word) || stop_words.contains(word)) {
                         continue;
                     }
-
+                    
+                    // add word to mapping
                     Word wordObj = countMap.get(word);
                     if (wordObj == null) {
                         wordObj = new Word();
@@ -58,12 +67,13 @@ abstract class Document implements Comparable<Document>{
 
             reader.close();
         } catch (IOException ex) {
-            
+            System.out.println(ex);
         }
         
         return countMap;
     }
     
+    // Calculate document vector length
     float getVectorLength(Engine engine) {
         float total_weight_vector = 0;
         
@@ -81,10 +91,13 @@ abstract class Document implements Comparable<Document>{
         return (float) Math.sqrt(total_weight_vector);
     }
     
+    // return document rank value
     float getRank() {
         return this.rank;
     }
     
+    // Compare document by rank
+    @Override
     public int compareTo(Document b) { return Comparator.comparing(Document::getRank)
           .compare(this, b); }
 }

@@ -48,8 +48,10 @@ public class Query extends Document {
     
     @Override
     float getVectorLength(Engine engine) {
+        // Sort countMap base on highest frequency to get the max_freq
         SortedSet<Word> sortedWords = new TreeSet<>(countMap.values()).descendingSet();
         int max_freq = sortedWords.first().count;
+        
         float total_weight_vector = 0;
         
         for(Word word : countMap.values()) {

@@ -10,6 +10,7 @@ import javafx.scene.control.Hyperlink;
 import javafx.scene.control.ListView;
 import javafx.scene.control.TextField;
 import javafx.scene.layout.VBox;
+import javafx.scene.text.Text;
 import javafx.stage.DirectoryChooser;
 import javafx.stage.FileChooser;
 import javafx.stage.Stage;
@@ -24,15 +25,26 @@ public class PrimaryController {
     @FXML private Button b_reset;
     @FXML private TextField query_input_field;    
     @FXML private ListView<Hyperlink> lv_rank;
-    private HostServices hostServices;
+    
+    @FXML private ListView<String> lv_topTerm;
+    @FXML private Text t_topTerm;
+    @FXML private Button b_upTerm;
+    @FXML private Button b_downTerm;
+    
 
-    Engine engine = new Engine();
+    private Engine engine;
+    private HostServices hostServices;
+    private int max_topTerm;
+    
     
     //  Methods
-//    @FXML
-//    public void initialize(URL url, ResourceBundle rb) {
-//        fileName_rank.setCellValueFactory(new PropertyValueFactory<Document, File>());
-//    }
+    @FXML
+    public void initialize() {
+        engine = new Engine();
+        max_topTerm = 5;
+        
+        this.setTopTermText();
+    }
     
     @FXML
     void onClickSearchButton(ActionEvent event) {
@@ -51,7 +63,7 @@ public class PrimaryController {
             
             final File file = new File(path);
 
-            Hyperlink hp = new Hyperlink("Rank " + (++count) + ": " + path);
+            Hyperlink hp = new Hyperlink("Rank " + (++count) + " | " + path);
             hp.setOnAction(e -> {
                hostServices.showDocument(file.getAbsolutePath());
             });
@@ -72,6 +84,7 @@ public class PrimaryController {
             lv_files.getItems().add(selectedFile.getPath());
         }
         
+        setTopTermList();
         checkResetFolder();
     }
 
@@ -88,18 +101,37 @@ public class PrimaryController {
             lv_files.getItems().add(file.toString()); 
         }
         
+        setTopTermList();
         checkResetFolder();
     }
     
     @FXML
     void onClickReset(ActionEvent event) {
         engine = new Engine();
-        if(engine.documents.size() < 1) {
-            lv_files.getItems().clear();
-        }
+
+        lv_files.getItems().clear();
         lv_rank.getItems().clear();
         
         b_reset.setVisible(false);
+        
+        setTopTermList();
+    }
+    
+    @FXML
+    void onClickUpTerm(ActionEvent event) {
+        max_topTerm++;
+        setTopTermList();
+        setTopTermText();
+    }
+    
+    @FXML
+    void onClickDownTerm(ActionEvent event) {
+        
+        if(max_topTerm == 0) return;
+        
+        max_topTerm--;
+        setTopTermList();
+        setTopTermText();
     }
     
     void checkResetFolder() {
@@ -110,5 +142,19 @@ public class PrimaryController {
     
     void setHostServices(HostServices hostServices) {
         this.hostServices = hostServices;
+    }
+    
+    void setTopTermText() {
+        t_topTerm.setText("TOP " + max_topTerm + " TERMS");
+    }
+    
+    void setTopTermList() {
+        lv_topTerm.getItems().clear();
+        
+        List<Word> top_term = engine.getTopFrequency(max_topTerm);
+        
+        for(Word word : top_term) {
+            lv_topTerm.getItems().add(word.word + " (" + word.count + "words)");
+        }
     }
 }
