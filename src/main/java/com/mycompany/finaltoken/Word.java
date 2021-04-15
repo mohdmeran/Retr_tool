@@ -1,9 +1,11 @@
+package com.mycompany.finaltoken;
+
 /*
  * To change this license header, choose License Headers in Project Properties.
  * To change this template file, choose Tools | Templates
  * and open the template in the editor.
  */
-package Main;
+
 
 import java.util.Comparator;
 
@@ -32,9 +34,6 @@ public class Word implements Comparable<Word> {
     
     public float getIDF(int total_documents) {
         // log (N/tf)
-//        System.out.println("total doc: " + total_documents);
-//        System.out.println(word + " count: " + count);       
-//        System.out.println("idf" + (float) Math.log10(total_documents * 1.0 / count));
         return (float) Math.log10(total_documents * 1.0 / count);
     }
 

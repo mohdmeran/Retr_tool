@@ -1,9 +1,6 @@
-/*
- * To change this license header, choose License Headers in Project Properties.
- * To change this template file, choose Tools | Templates
- * and open the template in the editor.
- */
-package Main;
+package com.mycompany.finaltoken;
+
+
 
 import java.io.BufferedReader;
 import java.io.ByteArrayInputStream;
@@ -16,8 +13,6 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.SortedSet;
 import java.util.TreeSet;
-import java.util.logging.Level;
-import java.util.logging.Logger;
 
 /**
  *
@@ -62,7 +57,7 @@ abstract class Document implements Comparable<Document>{
 
             reader.close();
         } catch (IOException ex) {
-            Logger.getLogger(Engine.class.getName()).log(Level.SEVERE, null, ex);
+            
         }
         
         return countMap;
@@ -80,13 +75,6 @@ abstract class Document implements Comparable<Document>{
             total_weight_vector += weight_vector * weight_vector;
             
             word.normalized_tf = normalized_tf;
-            
-            if("d2.pdf".equals(file.getName())) {
-                System.out.println("word: " + word.word);
-                System.out.println("normalized_tf: " + normalized_tf);
-                System.out.println("idf: " + idf);
-                System.out.println("====================");
-            }
         }
 
         return (float) Math.sqrt(total_weight_vector);
