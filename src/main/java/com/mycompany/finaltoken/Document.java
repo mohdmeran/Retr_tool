@@ -78,7 +78,7 @@ abstract class Document implements Comparable<Document>{
         float total_weight_vector = 0;
         
         for(Word word : countMap.values()) {
-            float normalized_tf = (float) (word.count * 1.0);
+            float normalized_tf = calculateNormalizedTF(word);
             float idf = engine.getidf(word.getWord());
             
             float weight_vector = normalized_tf * idf;
@@ -94,6 +94,10 @@ abstract class Document implements Comparable<Document>{
     // return document rank value
     float getRank() {
         return this.rank;
+    }
+    
+    float calculateNormalizedTF(Word word) {
+        return (float) (word.count * 1.0);
     }
     
     // Compare document by rank

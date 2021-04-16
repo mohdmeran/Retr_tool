@@ -97,7 +97,7 @@ public class Engine {
             queryWriter.write(query);
             queryWriter.close();
         } catch (IOException ex) {
-            
+            System.out.println(ex);
         }
         
         File file = new File("query.txt");

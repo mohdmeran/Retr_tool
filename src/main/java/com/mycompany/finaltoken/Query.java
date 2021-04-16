@@ -47,24 +47,11 @@ public class Query extends Document {
     }
     
     @Override
-    float getVectorLength(Engine engine) {
+    float calculateNormalizedTF(Word word) {
         // Sort countMap base on highest frequency to get the max_freq
         SortedSet<Word> sortedWords = new TreeSet<>(countMap.values()).descendingSet();
         int max_freq = sortedWords.first().count;
         
-        float total_weight_vector = 0;
-        
-        for(Word word : countMap.values()) {
-            float normalized_tf = (float) (word.count * 1.0/ max_freq);
-            float idf = engine.getidf(word.getWord());
-            
-            float weight_vector = normalized_tf * idf;
-            
-            total_weight_vector += weight_vector * weight_vector;
-            word.normalized_tf = normalized_tf;
-        }
-        
-        return (float) Math.sqrt(total_weight_vector);
+        return (float) (word.count * 1.0/ max_freq);
     }
-    
 }

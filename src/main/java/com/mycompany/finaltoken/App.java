@@ -21,7 +21,7 @@ public class App extends Application {
         Parent root = loader.load();
         PrimaryController controller = loader.getController();
         controller.setHostServices(getHostServices());
-        scene = new Scene(root, 1080, 720);
+        scene = new Scene(root);
         stage.setScene(scene);
         stage.show();
     }
